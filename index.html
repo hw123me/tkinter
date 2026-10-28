@@ -1,0 +1,826 @@
+html_content = """
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ملخص تفاعلي: بناء الواجهات الرسومية بلغة البايثون (tkinter)</title>
+    <style>
+        :root {
+            --primary: #008080;
+            --primary-dark: #005959;
+            --accent: #ff7f50;
+            --bg: #f4f7f9;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0 0 8px 0;
+            font-size: 1.8rem;
+        }
+
+        header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: white;
+            padding: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        }
+
+        .tab-btn {
+            background: #eef2f5;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text);
+            transition: all 0.25s;
+            font-size: 0.95rem;
+        }
+
+        .tab-btn.active,
+        .tab-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 25px auto;
+            padding: 0 15px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+            border-top: 4px solid var(--primary);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        code,
+        pre {
+            font-family: Consolas, 'Courier New', monospace;
+            direction: ltr;
+            text-align: left;
+        }
+
+        pre {
+            background: #1e272e;
+            color: #f1f2f6;
+            padding: 14px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+
+        .inline-code {
+            background: #e8f4f4;
+            color: var(--primary-dark);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+        }
+
+        .rgb-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            direction: ltr;
+        }
+
+        .sim-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .sim-controls {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .sim-screen {
+            flex: 1;
+            min-width: 320px;
+            text-align: center;
+        }
+
+        .tk-window {
+            border: 2px solid #7f8c8d;
+            border-radius: 6px;
+            overflow: hidden;
+            display: inline-block;
+            background: white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .tk-bar {
+            background: #dfe4ea;
+            padding: 6px 12px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            direction: ltr;
+            color: #2f3542;
+            font-weight: bold;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .action-btn.danger {
+            background: #e74c3c;
+        }
+
+        .quiz-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-right: 4px solid var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>ملخص تفاعلي: بناء الواجهات الرسومية بلغة البايثون</h1>
+        <p>النموذج البرمجي تكينتر (tkinter) — بطاقات مراجعة، محاكي رسم فوري، وتدريبات تفاعلية</p>
+    </header>
+
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="showTab('basics', this)">1. الأساسيات والنافذة</button>
+        <button class="tab-btn" onclick="showTab('colors', this)">2. الألوان والإحداثيات</button>
+        <button class="tab-btn" onclick="showTab('shapes', this)">3. دوال رسم الأشكال</button>
+        <button class="tab-btn" onclick="showTab('events', this)">4. الأحداث والتفاعل</button>
+        <button class="tab-btn" onclick="showTab('simulator', this)">5. المحاكي التفاعلي المباشر</button>
+        <button class="tab-btn" onclick="showTab('quiz', this)">6. اختبر نفسك (التدريبات)</button>
+    </nav>
+
+    <div class="container">
+
+        <!-- القسم 1: الأساسيات -->
+        <div id="basics" class="section active">
+            <div class="grid">
+                <div class="card">
+                    <h3>مفهوم واجهة المستخدم (GUI) وتكينتر</h3>
+                    <p><strong>واجهة المستخدم الرسومية (GUI):</strong> تسمح بالتفاعل مع الحاسب باستخدام الصور والرموز
+                        والعناصر الرسومية بدلاً من النص فقط.</p>
+                    <p><strong>نموذج تكينتر (tkinter):</strong> يحتوي على نصوص برمجية ودوال جاهزة للرسم على <strong>لوحة
+                            الرسم القماشية (Canvas)</strong> وهي منطقة مستطيلة مخصصة للرسومات والتخطيطات.</p>
+                </div>
+                <div class="card">
+                    <h3>القالب الأساسي لإنشاء نافذة رسم</h3>
+                    <pre>from tkinter import *
+window = Tk()
+window.title("Graphics Window")
+canvas = Canvas(bg="teal", width=400, height=400)
+canvas.pack()
+window.mainloop()</pre>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h3>جدول الأوامر الأساسية</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الأمر البرمجي</th>
+                            <th>الوظيفة والوصف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="inline-code">from tkinter import *</span></td>
+                            <td>يستورد نموذج تكينتر البرمجي بجميع دواله.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="inline-code">window = Tk()</span></td>
+                            <td>ينشئ نافذة أساسية جديدة على الشاشة لعرض الرسومات.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="inline-code">window.title("...")</span></td>
+                            <td>يحدد عنواناً لنافذة الرسومات.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="inline-code">canvas = Canvas(bg="color", width=500, height=350)</span></td>
+                            <td>يضبط حجم (العرض والارتفاع) ولون الخلفية للوحة الرسم القماشية.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="inline-code">canvas.pack()</span></td>
+                            <td>يضع كل العناصر ويعرضها داخل النافذة.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- القسم 2: الألوان والإحداثيات -->
+        <div id="colors" class="section">
+            <div class="grid">
+                <div class="card">
+                    <h3>الألوان في بايثون (RGB & الأسماء المعيارية)</h3>
+                    <p>يمكن تحديد الألوان بطريقتين:</p>
+                    <ul>
+                        <li><strong>اسم لون معياري:</strong> مثل أبيض، أسود، أحمر، أزرق، أخضر، سماوي، أصفر، أرجواني.
+                        </li>
+                        <li><strong>نموذج ألوان RGB:</strong> 3 أرقام صحيحة بين <strong>0 و 255</strong> تحدد كثافة
+                            (الأحمر، الأخضر، الأزرق).</li>
+                    </ul>
+                    <div class="rgb-box" style="background: rgb(220,20,60);"><span>Crimson</span><span>(220, 20,
+                            60)</span></div>
+                    <div class="rgb-box" style="background: rgb(255,127,80);"><span>Coral</span><span>(255, 127,
+                            80)</span></div>
+                    <div class="rgb-box" style="background: rgb(0,128,128);"><span>Teal</span><span>(0, 128, 128)</span>
+                    </div>
+                    <div class="rgb-box" style="background: rgb(70,130,180);"><span>SteelBlue</span><span>(70, 130,
+                            180)</span></div>
+                    <div class="rgb-box" style="background: rgb(128,0,128);"><span>Purple</span><span>(128, 0,
+                            128)</span></div>
+                </div>
+
+                <div class="card">
+                    <h3>نظام الإحداثيات في لوحة الرسم (Canvas)</h3>
+                    <p>يُقاس بالبكسل كأعداد صحيحة، ويختلف عن النظام الديكارتي المعتاد:</p>
+                    <ul>
+                        <li>تقع نقطة الأصل <strong>(0, 0)</strong> في <strong>الزاوية اليسرى العليا</strong> من اللوحة.
+                        </li>
+                        <li><strong>محور X:</strong> تزداد قيمته كلما اتجهنا إلى <strong>اليمين</strong>.</li>
+                        <li><strong>محور Y:</strong> معكوس، تزداد قيمته كلما اتجهنا إلى <strong>الأسفل</strong>.</li>
+                    </ul>
+                    <p><em>حرك الفأرة داخل اللوحة التجريبية أدناه لاستكشاف الإحداثيات:</em></p>
+                    <div style="text-align:center;">
+                        <canvas id="coordCanvas" width="320" height="180"
+                            style="background:#eef7f7; border:2px dashed var(--primary); cursor:crosshair;"></canvas>
+                        <div id="coordDisplay"
+                            style="font-weight:bold; color:var(--primary-dark); margin-top:6px; direction:ltr;">(x = 0,
+                            y = 0)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- القسم 3: دوال الأشكال -->
+        <div id="shapes" class="section">
+            <div class="grid">
+                <div class="card">
+                    <h3>1. رسم الخطوط والمثلث <span class="badge">create_line</span></h3>
+                    <p>يرسم خطاً بين نقطة البداية ونقطة النهاية، ويمكن تمرير عدة نقاط لرسم مثلث.</p>
+                    <pre># خط ملون وعريض
+canvas.create_line(10,10, 100,100, width=5, fill="red")
+
+# خط متقطع
+canvas.create_line(0,100, 400,100, fill="white", dash=100)
+
+# رسم مثلث بالخطوط
+canvas.create_line(240,20, 160,100, 320,100, 240,20)</pre>
+                </div>
+
+                <div class="card">
+                    <h3>2. رسم المستطيل <span class="badge">create_rectangle</span></h3>
+                    <p>يُحدد بإحداثيات الزاوية اليسرى العليا <span class="inline-code">(x1,y1)</span> والزاوية اليمنى
+                        السفلية <span class="inline-code">(x2,y2)</span>.</p>
+                    <pre>canvas.create_rectangle(
+    100, 150, 400, 250,
+    width=3,
+    outline="coral",
+    fill="white"
+)</pre>
+                    <p><small><strong>fill:</strong> لون التعبئة الداخلي | <strong>outline:</strong> لون الإطار الخارجي
+                            | <strong>width:</strong> سُمك الإطار.</small></p>
+                </div>
+
+                <div class="card">
+                    <h3>3. الشكل البيضاوي والدائرة <span class="badge">create_oval</span></h3>
+                    <p>يتسع داخل المستطيل المحدد بالإحداثيات <span class="inline-code">(x1,y1, x2,y2)</span>. إذا كان
+                        المستطيل مربعاً ينتج <strong>دائرة</strong>.</p>
+                    <pre># رسم دائرة (العرض 250 والارتفاع 250)
+canvas.create_oval(50, 50, 300, 300, width=3)</pre>
+                </div>
+
+                <div class="card">
+                    <h3>4. رسم المضلع <span class="badge">create_polygon</span></h3>
+                    <p>شكل مستوٍ مغلق يتكون من عدة خطوط مستقيمة متصلة تُحدد نقاط زواياها في قائمة.</p>
+                    <pre>points = [100,80, 180,80, 220,150, 180,220, 100,220, 60,150]
+canvas.create_polygon(points, fill="green")</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- القسم 4: الأحداث -->
+        <div id="events" class="section">
+            <div class="grid">
+                <div class="card">
+                    <h3>ربط الأحداث بالدوال <span class="inline-code">widget.bind()</span></h3>
+                    <p>يمكن ربط عناصر الواجهة بأحداث الفأرة أو لوحة المفاتيح لاستدعاء دالة معينة عند وقوع الحدث:</p>
+                    <pre>def callback(event):
+    print("clicked at", event.x, event.y)
+
+canvas = Canvas(bg="teal", width=400, height=400)
+canvas.bind("&lt;Button-1&gt;", callback)
+canvas.pack()</pre>
+                </div>
+
+                <div class="card">
+                    <h3>جدول فئات الأحداث في تكينتر</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الحدث</th>
+                                <th>الوصف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="inline-code">&lt;Button-1&gt;</span></td>
+                                <td>الضغط على زر الفأرة الأيسر.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="inline-code">&lt;Double-Button-1&gt;</span></td>
+                                <td>الضغط المزدوج على زر الفأرة الأيسر.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="inline-code">&lt;Enter&gt;</span></td>
+                                <td>إدخال مؤشر الفأرة إلى نافذة تكينتر.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="inline-code">&lt;Leave&gt;</span></td>
+                                <td>إخراج مؤشر الفأرة من نافذة تكينتر.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="inline-code">&lt;Return&gt;</span></td>
+                                <td>الضغط على مفتاح الإدخال (Enter).</td>
+                            </tr>
+                            <tr>
+                                <td><span class="inline-code">&lt;Key&gt;</span></td>
+                                <td>الضغط على أي مفتاح في لوحة المفاتيح.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- القسم 5: المحاكي المباشر -->
+        <div id="simulator" class="section">
+            <div class="card">
+                <h3>مختبر محاكاة تكينتر التفاعلي</h3>
+                <p>اضغط على الأزرار لتنفيذ أوامر الرسم ومشاهدة الكود البرمجي المقابل، أو اضغط مباشرة داخل لوحة الرسم
+                    لتجربة حدث <span class="inline-code">&lt;Button-1&gt;</span>:</p>
+                <div class="sim-wrapper">
+                    <div class="sim-controls">
+                        <strong>1. لون خلفية اللوحة (bg):</strong>
+                        <div class="btn-group" style="margin-top:6px;">
+                            <button class="action-btn" onclick="simBg('teal')">teal</button>
+                            <button class="action-btn" onclick="simBg('cyan')">cyan</button>
+                            <button class="action-btn" onclick="simBg('darkgreen')">darkgreen</button>
+                            <button class="action-btn" onclick="simBg('black')">black</button>
+                        </div>
+
+                        <strong>2. إضافة أشكال وتدريبات الكتاب:</strong>
+                        <div class="btn-group" style="margin-top:6px;">
+                            <button class="action-btn" onclick="simLine()">خط (create_line)</button>
+                            <button class="action-btn" onclick="simLoopLines()">حلقة خطوط أفقية</button>
+                            <button class="action-btn" onclick="simTriangle()">مثلث</button>
+                            <button class="action-btn" onclick="simRect()">مستطيل</button>
+                            <button class="action-btn" onclick="simOval()">دائرة / بيضاوي</button>
+                            <button class="action-btn" onclick="simPolygon()">مضلع سداسي</button>
+                            <button class="action-btn" onclick="simEx2()">حل تدريب 2 (دائرتان)</button>
+                            <button class="action-btn danger" onclick="simClear()">مسح اللوحة</button>
+                        </div>
+
+                        <div style="background:#eef7f7; padding:8px 12px; border-radius:6px; margin-bottom:10px;">
+                            <strong>حدث الفأرة المباشر:</strong> <span id="simMouseLog"
+                                style="direction:ltr; display:inline-block; color:#d9534f; font-weight:bold;">اضغط داخل
+                                اللوحة...</span>
+                        </div>
+
+                        <strong>المقطع البرمجي المتولد:</strong>
+                        <pre id="simCode">from tkinter import *
+window = Tk()
+canvas = Canvas(bg="teal", width=460, height=320)
+canvas.pack()
+window.mainloop()</pre>
+                    </div>
+
+                    <div class="sim-screen">
+                        <div class="tk-window">
+                            <div class="tk-bar">
+                                <span>🪶 tk - Graphics Window</span>
+                                <span>— ☐ ✕</span>
+                            </div>
+                            <canvas id="simCanvas" width="460" height="320"
+                                style="background:teal; display:block; cursor:crosshair;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- القسم 6: اختبر نفسك -->
+        <div id="quiz" class="section">
+            <div class="card">
+                <h3>تدريب 1: طابق خصائص النموذج البرمجي تكينتر بالجمل المقابلة</h3>
+                <p>اختر الوظيفة الصحيحة لكل أمر برمجي ثم اضغط على زر التحقق:</p>
+
+                <div class="quiz-item">
+                    <span class="inline-code">1. window.title("Graphics Window")</span>
+                    <select id="q1">
+                        <option value="">-- اختر الإجابة --</option>
+                        <option value="correct">تحديد عنوان للنافذة</option>
+                        <option value="wrong">عرض نافذة الرسومات</option>
+                        <option value="wrong">إنشاء مستطيل</option>
+                    </select>
+                </div>
+
+                <div class="quiz-item">
+                    <span class="inline-code">2. canvas = Canvas(bg="cyan")</span>
+                    <select id="q2">
+                        <option value="">-- اختر الإجابة --</option>
+                        <option value="wrong">تحديد لون الحد</option>
+                        <option value="correct">اختيار لون خلفية لوحة الرسم القماشية</option>
+                        <option value="wrong">تعبئة المستطيل باللون</option>
+                    </select>
+                </div>
+
+                <div class="quiz-item">
+                    <span class="inline-code">3. canvas.create_rectangle</span>
+                    <select id="q3">
+                        <option value="">-- اختر الإجابة --</option>
+                        <option value="wrong">أنشئ مثلثاً</option>
+                        <option value="correct">إنشاء مستطيل</option>
+                        <option value="wrong">تحديد عرض المستطيل</option>
+                    </select>
+                </div>
+
+                <div class="quiz-item">
+                    <span class="inline-code">4. outline="red"</span>
+                    <select id="q4">
+                        <option value="">-- اختر الإجابة --</option>
+                        <option value="correct">تحديد لون الحد</option>
+                        <option value="wrong">تعبئة المستطيل باللون الذي تختاره</option>
+                        <option value="wrong">اختيار لون الخلفية</option>
+                    </select>
+                </div>
+
+                <div class="quiz-item">
+                    <span class="inline-code">5. canvas.pack()</span>
+                    <select id="q5">
+                        <option value="">-- اختر الإجابة --</option>
+                        <option value="wrong">تحديد عنوان للنافذة</option>
+                        <option value="correct">عرض نافذة الرسومات</option>
+                        <option value="wrong">تحديد عرض المستطيل</option>
+                    </select>
+                </div>
+
+                <div class="quiz-item">
+                    <span class="inline-code">6. fill="green"</span>
+                    <select id="q6">
+                        <option value="">-- اختر الإجابة --</option>
+                        <option value="correct">تعبئة المستطيل باللون الذي تختاره</option>
+                        <option value="wrong">تحديد لون الحد</option>
+                        <option value="wrong">اختيار لون خلفية اللوحة</option>
+                    </select>
+                </div>
+
+                <div class="quiz-item">
+                    <span class="inline-code">7. width=10</span>
+                    <select id="q7">
+                        <option value="">-- اختر الإجابة --</option>
+                        <option value="wrong">إنشاء مستطيل</option>
+                        <option value="correct">تحديد عرض المستطيل (سُمك الخط)</option>
+                        <option value="wrong">عرض نافذة الرسومات</option>
+                    </select>
+                </div>
+
+                <button class="action-btn" style="padding:10px 24px; font-size:1rem;" onclick="checkQuiz()">تحقق من
+                    الإجابات</button>
+                <p id="quizResult" style="font-weight:bold; margin-top:12px;"></p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showTab(id, btn) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // مستكشف الإحداثيات
+        const coordCanvas = document.getElementById('coordCanvas');
+        const coordCtx = coordCanvas.getContext('2d');
+        const coordDisplay = document.getElementById('coordDisplay');
+
+        function drawCoordGrid(mx = 0, my = 0) {
+            coordCtx.clearRect(0, 0, 320, 180);
+            coordCtx.fillStyle = '#008080';
+            coordCtx.font = '12px monospace';
+            coordCtx.fillText('(0,0)', 6, 14);
+            coordCtx.beginPath();
+            coordCtx.setLineDash([4, 4]);
+            coordCtx.strokeStyle = '#ff7f50';
+            coordCtx.moveTo(mx, 0); coordCtx.lineTo(mx, 180);
+            coordCtx.moveTo(0, my); coordCtx.lineTo(320, my);
+            coordCtx.stroke();
+            coordCtx.beginPath();
+            coordCtx.setLineDash([]);
+            coordCtx.arc(mx, my, 4, 0, Math.PI * 2);
+            coordCtx.fill();
+        }
+        drawCoordGrid(100, 80);
+
+        coordCanvas.addEventListener('mousemove', e => {
+            const r = coordCanvas.getBoundingClientRect();
+            const x = Math.round(e.clientX - r.left);
+            const y = Math.round(e.clientY - r.top);
+            coordDisplay.textContent = `(x = ${x}, y = ${y})`;
+            drawCoordGrid(x, y);
+        });
+
+        // المحاكي التفاعلي
+        const simCanvas = document.getElementById('simCanvas');
+        const simCtx = simCanvas.getContext('2d');
+        const simCode = document.getElementById('simCode');
+        const simMouseLog = document.getElementById('simMouseLog');
+        let currentBg = 'teal';
+        let codeLines = [];
+        const lineColors = ['red', 'gold', 'white', 'orange', 'cyan', 'magenta'];
+        let cIdx = 0;
+
+        function renderCode() {
+            let txt = `from tkinter import *\nwindow = Tk()\ncanvas = Canvas(bg="${currentBg}", width=460, height=320)\ncanvas.pack()\n\n`;
+            txt += codeLines.join('\n');
+            txt += `\n\nwindow.mainloop()`;
+            simCode.textContent = txt;
+        }
+
+        function simBg(c) {
+            currentBg = c;
+            simCanvas.style.background = c;
+            renderCode();
+        }
+
+        function simClear() {
+            simCtx.clearRect(0, 0, simCanvas.width, simCanvas.height);
+            codeLines = [];
+            renderCode();
+        }
+
+        function simLine() {
+            simCtx.setLineDash([]);
+            simCtx.strokeStyle = 'red'; simCtx.lineWidth = 5;
+            simCtx.beginPath(); simCtx.moveTo(10, 10); simCtx.lineTo(100, 100); simCtx.stroke();
+            simCtx.strokeStyle = 'gold'; simCtx.lineWidth = 3;
+            simCtx.beginPath(); simCtx.moveTo(10, 100); simCtx.lineTo(100, 10); simCtx.stroke();
+            codeLines.push('canvas.create_line(10,10, 100,100, width=5, fill="red")');
+            codeLines.push('canvas.create_line(10,100, 100,10, width=3, fill="gold")');
+            renderCode();
+        }
+
+        function simLoopLines() {
+            simCtx.setLineDash([]);
+            simCtx.strokeStyle = 'orange';
+            for (let i = 1; i < 10; i++) {
+                simCtx.lineWidth = i;
+                simCtx.beginPath(); simCtx.moveTo(40, i * 15); simCtx.lineTo(420, i * 15); simCtx.stroke();
+            }
+            codeLines.push('for i in range(0, 10):\n    canvas.create_line(40, i*15, 420, i*15, width=i, fill="orange")');
+            renderCode();
+        }
+
+        function simTriangle() {
+            simCtx.setLineDash([]);
+            simCtx.strokeStyle = 'black'; simCtx.lineWidth = 2;
+            simCtx.beginPath(); simCtx.moveTo(240, 20); simCtx.lineTo(160, 100); simCtx.lineTo(320, 100); simCtx.lineTo(240, 20); simCtx.stroke();
+            codeLines.push('canvas.create_line(240,20, 160,100, 320,100, 240,20)');
+            renderCode();
+        }
+
+        function simRect() {
+            simCtx.setLineDash([]);
+            simCtx.fillStyle = 'white'; simCtx.strokeStyle = 'coral'; simCtx.lineWidth = 3;
+            simCtx.fillRect(100, 140, 260, 90);
+            simCtx.strokeRect(100, 140, 260, 90);
+            codeLines.push('canvas.create_rectangle(100,140, 360,230, width=3, outline="coral", fill="white")');
+            renderCode();
+        }
+
+        function simOval() {
+            simCtx.setLineDash([]);
+            simCtx.fillStyle = 'white'; simCtx.strokeStyle = 'black'; simCtx.lineWidth = 2;
+            simCtx.beginPath(); simCtx.ellipse(130, 110, 65, 65, 0, 0, Math.PI * 2); simCtx.fill(); simCtx.stroke();
+            simCtx.fillStyle = 'yellow';
+            simCtx.beginPath(); simCtx.ellipse(320, 230, 70, 40, 0, 0, Math.PI * 2); simCtx.fill(); simCtx.stroke();
+            codeLines.push('canvas.create_oval(65,45, 195,175, fill="white", width=2)');
+            codeLines.push('canvas.create_oval(250,190, 390,270, fill="yellow", width=2)');
+            renderCode();
+        }
+
+        function simPolygon() {
+            simCtx.setLineDash([]);
+            simCtx.fillStyle = 'green';
+            simCtx.beginPath();
+            simCtx.moveTo(100, 80); simCtx.lineTo(180, 80); simCtx.lineTo(220, 150);
+            simCtx.lineTo(180, 220); simCtx.lineTo(100, 220); simCtx.lineTo(60, 150);
+            simCtx.closePath(); simCtx.fill();
+            codeLines.push('points = [100,80, 180,80, 220,150, 180,220, 100,220, 60,150]\ncanvas.create_polygon(points, fill="green")');
+            renderCode();
+        }
+
+        function simEx2() {
+            simClear();
+            simBg('black');
+            simCtx.fillStyle = 'green';
+            simCtx.beginPath(); simCtx.ellipse(150, 160, 75, 75, 0, 0, Math.PI * 2); simCtx.fill();
+            simCtx.fillStyle = 'yellow';
+            simCtx.beginPath(); simCtx.ellipse(300, 160, 75, 75, 0, 0, Math.PI * 2); simCtx.fill();
+            codeLines.push('canvas.create_oval(75,85, 225,235, fill="green")');
+            codeLines.push('canvas.create_oval(225,85, 375,235, fill="yellow")');
+            renderCode();
+        }
+
+        simCanvas.addEventListener('mousedown', e => {
+            const r = simCanvas.getBoundingClientRect();
+            const x = Math.round(e.clientX - r.left);
+            const y = Math.round(e.clientY - r.top);
+            const col = lineColors[cIdx % lineColors.length];
+            cIdx++;
+            simMouseLog.textContent = `clicked at ${x} ${y} (لون الخط: ${col})`;
+            simCtx.setLineDash([]);
+            simCtx.strokeStyle = col; simCtx.lineWidth = 3;
+            simCtx.beginPath(); simCtx.moveTo(230, 160); simCtx.lineTo(x, y); simCtx.stroke();
+        });
+
+        function checkQuiz() {
+            let score = 0;
+            for (let i = 1; i <= 7; i++) {
+                const el = document.getElementById('q' + i);
+                if (el.value === 'correct') {
+                    score++;
+                    el.style.borderColor = '#2ecc71';
+                    el.style.backgroundColor = '#e8f8f5';
+                } else {
+                    el.style.borderColor = '#e74c3c';
+                    el.style.backgroundColor = '#fdedec';
+                }
+            }
+            const res = document.getElementById('quizResult');
+            res.textContent = `نتيجتك: ${score} من 7 إجابات صحيحة!`;
+            res.style.color = score === 7 ? '#27ae60' : '#d35400';
+        }
+    </script>
+
+</body>
+
+</html>
+"""
+
+with open("ملخص_تكينتر_التفاعلي.html", "w", encoding="utf-8") as f:
+f.write(html_content)
+
+print("HTML summary generated successfully.")
